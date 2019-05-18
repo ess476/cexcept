@@ -11,8 +11,8 @@ int fact(int x) {
     try {
         return x * fact(x - 1);
     } catch(errno) {
-        printf("caught exception: %d\n", errno);
-        print_stack_trace();
+        printf("caught exception: %d from: %s:%d\n", errno, exception_ctx->src_ctx.file, exception_ctx->src_ctx.line);
+
 
         return 1;
     }
@@ -23,11 +23,11 @@ int main() {
 
 
     try {
-        fact(5);
+        fact(50);
 
         throw(12);
     } catch(errno) {
-        printf("caught exception: %d\n", errno);
+        printf("caught exception: %d from: %s:%d\n", errno, exception_ctx->src_ctx.file, exception_ctx->src_ctx.line);
 
         print_stack_trace();
         throw(errno);

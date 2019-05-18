@@ -44,6 +44,8 @@ void cxecpt_handler(void (*handler)(int)) {
     __exception_handler = handler;
 }
 
+#define exception_ctx  __exception_tmp_ctx
+
 #define print_stack_trace() do { \
         void* __exception_src_ctx[4096]; \
         int __exception_backtrace_len = backtrace (__exception_src_ctx, 4096); \
@@ -71,8 +73,6 @@ void __exception_out_of_scope(__exception_ctx_t* ctx) {
     __exception_cur_ctx = &tmp; \
     __exception_cur_ctx->code = 0; \
     __exception_cur_ctx->active = 1; \
-    __exception_cur_ctx->src_ctx.line = __LINE__; \
-    __exception_cur_ctx->src_ctx.file = __FILE__; \
     __exception_cur_ctx->obj = NULL; \
     __exception_cur_ctx->prev = __exception_tmp_ctx; \
     __exception_cur_ctx->next = NULL; \
@@ -86,6 +86,8 @@ void __exception_out_of_scope(__exception_ctx_t* ctx) {
     do { \
         if (__exception_depth) { \
             __exception_pop(); \
+            __exception_tmp_ctx->src_ctx.line = __LINE__; \
+            __exception_tmp_ctx->src_ctx.file = __FILE__; \
             __exception_tmp_ctx->code = __code; \
             __exception_tmp_ctx->obj = NULL; \
             longjmp(__exception_tmp_ctx->jmp_ctx, 1); \
@@ -98,6 +100,8 @@ void __exception_out_of_scope(__exception_ctx_t* ctx) {
     do { \
         if (__exception_depth) { \
             __exception_pop(); \
+            __exception_tmp_ctx->src_ctx.line = __LINE__; \
+            __exception_tmp_ctx->src_ctx.file = __FILE__; \
             __exception_tmp_ctx->code = __code; \
             __exception_tmp_ctx->obj = (void*) __obj; \
             longjmp(__exception_tmp_ctx->jmp_ctx, 1); \
