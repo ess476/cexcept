@@ -25,7 +25,7 @@ int main() {
 
 
     try {
-        fact(10);
+        printf("fact(5) = %d\n", fact(5));
 
         throw(12);
     } catch(errno) {
