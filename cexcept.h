@@ -4,6 +4,13 @@
 #include <setjmp.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <execinfo.h>
+#include <unistd.h>
+
+typedef struct __exception_src_ctx {
+    int line;
+    char* file;
+} __exception_src_ctx_t;
 
 typedef struct __exception_ctx {
     jmp_buf jmp_ctx;
@@ -11,7 +18,7 @@ typedef struct __exception_ctx {
     struct __exception_ctx* next;
     int code;
     int active;
-    int from;
+    __exception_src_ctx_t src_ctx;
     void* obj;
 } __exception_ctx_t;
 
@@ -37,14 +44,19 @@ void cxecpt_handler(void (*handler)(int)) {
     __exception_handler = handler;
 }
 
+#define print_stack_trace() do { \
+        void* __exception_src_ctx[4096]; \
+        int __exception_backtrace_len = backtrace (__exception_src_ctx, 4096); \
+        if (__exception_backtrace_len) { \
+            backtrace_symbols_fd(__exception_src_ctx, __exception_backtrace_len, STDERR_FILENO); \
+        } \
+    } while(0)
 
 #define __exception_pop() \
-     if (__exception_cur_ctx->active) { \
     __exception_depth--; \
     __exception_cur_ctx->active = 0; \
     __exception_tmp_ctx = __exception_cur_ctx; \
-    __exception_cur_ctx = __exception_cur_ctx->prev; \
-    }
+    __exception_cur_ctx = __exception_cur_ctx->prev;
 
 
 void __exception_out_of_scope(__exception_ctx_t* ctx) {
@@ -59,7 +71,8 @@ void __exception_out_of_scope(__exception_ctx_t* ctx) {
     __exception_cur_ctx = &tmp; \
     __exception_cur_ctx->code = 0; \
     __exception_cur_ctx->active = 1; \
-    __exception_cur_ctx->from = __LINE__; \
+    __exception_cur_ctx->src_ctx.line = __LINE__; \
+    __exception_cur_ctx->src_ctx.file = __FILE__; \
     __exception_cur_ctx->obj = NULL; \
     __exception_cur_ctx->prev = __exception_tmp_ctx; \
     __exception_cur_ctx->next = NULL; \

@@ -5,25 +5,17 @@ int fact(int x) {
 
     printf("fact(%d)\n", x);
     if (x < 0) {
-        throw(x);
+        throw(-1);
     }
 
     try {
         return x * fact(x - 1);
     } catch(errno) {
-        printf("catch: %x\n", x);
+        printf("caught exception: %d\n", errno);
+        print_stack_trace();
+
         return 1;
     }
-}
-
-int fact2(int x) {
-
-    printf("fact(%d)\n", x);
-    if (x < 0) {
-        printf("%d\n", x);
-        throw(65);
-    }
-    fact2(x - 1);
 }
 
 
@@ -31,9 +23,13 @@ int main() {
 
 
     try {
-        fact2(2);
+        fact(5);
+
+        throw(12);
     } catch(errno) {
-        printf("ayy: %d\n", errno);
+        printf("caught exception: %d\n", errno);
+
+        print_stack_trace();
         throw(errno);
     }
 }
