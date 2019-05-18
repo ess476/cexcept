@@ -16,36 +16,24 @@ int fact(int x) {
     }
 }
 
-int test() {
-    char* x = "Hello, World!";
+int fact2(int x) {
 
-    try {
-
-        char* msg;
-        try {
-
-            printf("fact(5): %d\n", fact(5));
-
-        } catch(errno, msg) {
-
-            printf("catch 1: %d : %s\n", errno, msg);
-
-            return 183;
-        }
-
-        throw(111);
-    } catch(errno) {
-        printf("catch 2: %d\n", errno);
-
-        return 123;
-
+    printf("fact(%d)\n", x);
+    if (x < 0) {
+        printf("%d\n", x);
+        throw(65);
     }
-
-    return 4;
+    fact2(x - 1);
 }
+
 
 int main() {
 
-    int x = test();
-    printf("%d\n", x);
+
+    try {
+        fact2(2);
+    } catch(errno) {
+        printf("ayy: %d\n", errno);
+        throw(errno);
+    }
 }

@@ -11,6 +11,7 @@ typedef struct __exception_ctx {
     struct __exception_ctx* next;
     int code;
     int active;
+    int from;
     void* obj;
 } __exception_ctx_t;
 
@@ -38,10 +39,12 @@ void cxecpt_handler(void (*handler)(int)) {
 
 
 #define __exception_pop() \
+     if (__exception_cur_ctx->active) { \
     __exception_depth--; \
     __exception_cur_ctx->active = 0; \
     __exception_tmp_ctx = __exception_cur_ctx; \
-    __exception_cur_ctx = __exception_cur_ctx->prev;
+    __exception_cur_ctx = __exception_cur_ctx->prev; \
+    }
 
 
 void __exception_out_of_scope(__exception_ctx_t* ctx) {
@@ -56,6 +59,7 @@ void __exception_out_of_scope(__exception_ctx_t* ctx) {
     __exception_cur_ctx = &tmp; \
     __exception_cur_ctx->code = 0; \
     __exception_cur_ctx->active = 1; \
+    __exception_cur_ctx->from = __LINE__; \
     __exception_cur_ctx->obj = NULL; \
     __exception_cur_ctx->prev = __exception_tmp_ctx; \
     __exception_cur_ctx->next = NULL; \
@@ -94,18 +98,15 @@ void __exception_out_of_scope(__exception_ctx_t* ctx) {
 
 #define catch0() \
     } if (!__exception_ret) { \
-        __exception_pop(); \
     } else if (((errno = __exception_tmp_ctx->code) || 1) && !(__exception_ret = 0))
 
 #define catch1(__code) \
     } if (!__exception_ret) { \
-        __exception_pop(); \
     } else if (((__code = __exception_tmp_ctx->code) || 1) && !(__exception_ret = 0))
 
 #define catch2(__code, __obj) \
     } __obj = NULL; \
     if (!__exception_ret) { \
-        __exception_pop(); \
     } else if ((((__code = __exception_tmp_ctx->code) && (__obj = __exception_tmp_ctx->obj)) || 1) && !(__exception_ret = 0))
 
 
