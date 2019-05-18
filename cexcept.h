@@ -15,10 +15,9 @@ typedef struct __exception_src_ctx {
 typedef struct __exception_ctx {
     jmp_buf jmp_ctx;
     struct __exception_ctx* prev;
-    struct __exception_ctx* next;
+    __exception_src_ctx_t src_ctx;
     int code;
     int active;
-    __exception_src_ctx_t src_ctx;
     void* obj;
 } __exception_ctx_t;
 
@@ -75,10 +74,6 @@ void __exception_out_of_scope(__exception_ctx_t* ctx) {
     __exception_cur_ctx->active = 1; \
     __exception_cur_ctx->obj = NULL; \
     __exception_cur_ctx->prev = __exception_tmp_ctx; \
-    __exception_cur_ctx->next = NULL; \
-    if (__exception_tmp_ctx) { \
-        __exception_tmp_ctx->next = __exception_cur_ctx; \
-    } \
     __exception_depth++; \
     if ((__exception_ret = setjmp(__exception_cur_ctx->jmp_ctx)) == 0)
 

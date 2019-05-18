@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.14)
-project(cexcept C)
+project(cexcept)
 
-set(CMAKE_C_STANDARD 11)
-set (CMAKE_C_FLAGS "-rdynamic")
+set(CMAKE_CXX_STANDARD 14)
 
-add_executable(cexcept main.c cexcept.h)
+include_directories(.)
+
+add_executable(cexcept
+        cexcept.h
+        CMakeLists.txt
+        main.c)
