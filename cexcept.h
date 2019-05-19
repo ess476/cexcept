@@ -1,6 +1,8 @@
 #ifndef CEXCEPT_CEXCEPT_H
 #define CEXCEPT_CEXCEPT_H
 
+#define EXCEPTION_SYSCALL 1
+
 #include <setjmp.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -124,5 +126,47 @@ void __exception_out_of_scope(__exception_ctx_t* ctx) {
 
 #define GET_CATCH_MACRO(_0, _1, _2, NAME, ...) NAME
 #define catch(...) GET_CATCH_MACRO(_0, ##__VA_ARGS__, catch2, catch1, catch0)(__VA_ARGS__)
+
+#define except(x) \
+    ({ \
+        int __exception_ret_val = (x); \
+        if (__exception_ret_val < 0) { \
+            throw(__exception_ret_val); \
+        } \
+        __exception_ret_val; \
+    })
+
+#define except_sys(x) \
+    ({ \
+        int __exception_ret_val = (x); \
+        if (__exception_ret_val < 0) { \
+            throw(errno); \
+        } \
+        __exception_ret_val; \
+    })
+
+
+#ifdef EXCEPTION_SYSCALL
+
+#include "sys_defines.h"
+
+#endif
+
+#if 0
+#define except2(expected, ret) { \
+    int __exception_ret = ret; \
+    int __exception_expected = expected; \
+    if (__exception_ret != __exception_expected) { \
+        throw(__ret); \
+        } \
+    }
+
+
+#define GET_EXCEPT_MACRO(_1, _2, NAME, ...) NAME
+#define except(...) GET_EXCEPT_MACRO(__VA_ARGS__, except2, except1)(__VA_ARGS__)
+
+
+
+#endif
 
 #endif //CEXCEPT_CEXCEPT_H

@@ -1,7 +1,29 @@
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 #include "cexcept.h"
+#include <string.h>
 
-#if 1
+int main(int argc, char* argv[]) {
+
+    try {
+
+        int fd = open("./hello.txt", O_CREAT | O_RDWR, 0666);
+
+        char data[1024];
+        pid_t pid = getpid();
+
+        int len = snprintf(data, sizeof(data), "Hello, World! My PID is: %d\n", pid);
+        write(fd, data, len);
+
+    } catch(errno) {
+        perror("Error");
+    }
+}
+
+#if 0
 int fact(int x) {
 
     printf("fact(%d)\n", x);
