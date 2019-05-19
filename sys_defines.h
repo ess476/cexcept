@@ -1,9 +1,5 @@
 #pragma once
 
-#define (...)	 except_sys((__VA_ARGS__))
-
-#define (...)	 except_sys((__VA_ARGS__))
-
 #define accept(...)	 except_sys(accept(__VA_ARGS__))
 
 #define accept4(...)	 except_sys(accept4(__VA_ARGS__))
