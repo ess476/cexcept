@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 
     try {
 
-        int fd = open("./hello.txt", O_CREAT | O_RDWR, 0666);
+        int fd = open("/hello.txt", O_CREAT | O_RDWR, 0666);
 
         char data[1024];
         pid_t pid = getpid();
